@@ -1,0 +1,164 @@
+Git & Shell Scripting Exercises
+Exercise 1: proj2 – Script with multiple modifications and Git commits mkdir proj2 cd proj2 nano script1.sh # script1.sh (first version) #!/bin/bash echo "Welcome to the World of Linux" chmod +x script1.sh ./script1.sh git init git add script1.sh git commit -m "Initial commit - Welcome message script" # Modify script (even/odd check) #!/bin/bash echo "Welcome to the World of Linux" read -p "Enter a number: " num if (( num % 2 == 0 )); then  echo "The number is Even" else  echo "The number is Odd" fi git add script1.sh git commit -m "Added even/odd number check" # Modify script (invalid input check) #!/bin/bash echo "Welcome to the World of Linux" read -p "Enter a number: " num if (( num <= 0 )); then  echo "Invalid Input" elif (( num % 2 == 0 )); then  echo "The number is Even" else  echo "The number is Odd" fi git commit -am "Added invalid input check" # Modify script (>20 check) if (( num > 20 )); then  echo "The number entered is greater than 20" else  echo "The number entered is less than 20" fi git commit -am "Added >20 check" # Rollback git log --oneline git checkout <commit_id> -- script1.sh git commit -am "Reverted script to remove >20 check"
+Exercise 2: GitHub Repo – factorial script # factorial.sh #!/bin/bash read -p "Enter a positive number: " num if (( num <= 0 )); then  echo "Invalid input. Enter positive number only."  exit 1fi fact=1 for ((i=1; i<=num; i++)); do  fact=$((fact * i)) done echo "Factorial of $num is $fact" # Commit & push git add factorial.sh git commit -m "Added input validation" git push origin main
+Exercise 3: project1 – word search script # script1.sh
+#!/bin/bash read -p "Enter filename: " fname read -p "Enter word to search: " word if [[ -f "$fname" ]]; then  if grep -q "$word" "$fname"; then    grep "$word" "$fname"  else    echo "File does not contain the given word"  fi else  echo "File does not exist" fi # .gitignore project-info.txt git add script1.sh .gitignore git commit -m "Added file existence check" git push origin main Exercise 4: Git Merge Conflict (linux1 repo) # Final script after conflict resolution #!/bin/bash read -p "Enter a file name (Provide full path): " fname echo "Options:" echo "1. Scroll through the file - Both direction only" echo "2. Scroll through the file - One direction only" echo "3. Display first 10 lines" echo "4. Display last 10 lines" read -p "Enter choice: " choice case $choice in  1) cat "$fname" | less ;;  2) cat "$fname" | more ;;  3) head -n 10 "$fname" ;;  4) tail -n 10 "$fname" ;;  *) echo "Invalid choice" ;; esac # Commit & push after resolving conflicts git add script.sh git commit -m "Resolved merge conflict and finalized script" git push origin main
+
+
+
+
+shell
+
+
+1. Leap Year Check (with blinking output using tput)
+#!/bin/bash
+echo "Enter a year:"
+read year
+if [ $((year % 400)) -eq 0 ] || { [ $((year % 4)) -eq 0 ] && [ $((year % 100)) -ne 0 ]; }
+then
+ tput blink
+ echo "$year is a Leap Year"
+else
+ tput blink
+ echo "$year is NOT a Leap Year"
+fi
+tput sgr0
+2. File Modified Check (using diff)
+#!/bin/bash
+echo "Enter the file name:"
+read file
+cp $file backup.txt
+echo "Modify the file if you want, then press Enter..."
+read
+diff $file backup.txt > /dev/null
+if [ $? -eq 0 ]; then
+ echo "File is NOT modified"
+else
+ echo "File is MODIFIED"
+fi
+3. Fibonacci Series up to N
+#!/bin/bash
+echo "Enter a number:"
+read n
+a=0
+b=1
+echo "Fibonacci series up to $n:"
+while [ $a -le $n ]
+do
+ echo -n "$a "
+ fn=$((a + b))
+ a=$b
+ b=$fn
+done
+echo
+4. Calculator with Functions (Interactive)
+#!/bin/bash
+add() { echo "Result: $(($1 + $2))"; }
+sub() { echo "Result: $(($1 - $2))"; }
+mul() { echo "Result: $(($1 * $2))"; }
+div() { echo "Result: $(($1 / $2))"; }
+echo "Enter two numbers:"
+read a b
+echo "Enter operation (add/sub/mul/div):"
+read op
+case $op in
+ add) add $a $b ;;
+ sub) sub $a $b ;;
+ mul) mul $a $b ;;
+ div) div $a $b ;;
+ *) echo "Invalid operation" ;;
+esac
+5. Calculator (Command Line Args)
+#!/bin/bash
+add() { echo "Result: $(($1 + $2))"; }
+sub() { echo "Result: $(($1 - $2))"; }
+mul() { echo "Result: $(($1 * $2))"; }
+div() { echo "Result: $(($1 / $2))"; }
+op=$1
+a=$2
+b=$3
+case $op in
+ add) add $a $b ;;
+ sub) sub $a $b ;;
+ mul) mul $a $b ;;
+ div) div $a $b ;;
+ *) echo "Usage: $0 {add|sub|mul|div} num1 num2" ;;
+esac
+6. Odd/Even Check (Red prompt, Blue blinking output)
+#!/bin/bash
+echo -e "\e[31mEnter a number:\e[0m"
+read num
+if [ $((num % 2)) -eq 0 ]; then
+ tput setaf 4; tput blink
+ echo "$num is EVEN"
+else
+ tput setaf 4; tput blink
+ echo "$num is ODD"
+fi
+tput sgr0
+7. Square and Square Root
+#!/bin/bash
+echo "Enter a number:"
+read num
+square=$((num * num))
+sqrt=$(echo "scale=2; sqrt($num)" | bc)
+echo "Square: $square"
+echo "Square Root: $sqrt" 
+
+
+
+
+
+FILE
+
+
+
+
+Linux File Permissions - Exercises
+1. /shared folder with sales & purchase
+Create folders and set permissions so that only respective users can access:
+sudo mkdir -p /shared/sales /shared/purchase
+sudo useradd ramesh
+sudo useradd roshani
+sudo chown ramesh:ramesh /shared/sales
+sudo chown roshani:roshani /shared/purchase
+sudo chmod 700 /shared/sales
+sudo chmod 700 /shared/purchase
+2. /project folder
+Create group for project team. mohan is owner, ramesh and roshani also have full access:
+sudo useradd mohan
+sudo groupadd project-team
+sudo usermod -aG project-team mohan
+sudo usermod -aG project-team ramesh
+sudo usermod -aG project-team roshani
+sudo mkdir /project
+sudo chown mohan:project-team /project
+sudo chmod 770 /project
+3. /data and /data-bak
+Anjali is owner of /data, others (mohan, ramesh, roshani) also get full access.
+Only anjali & root can access /data-bak.
+sudo useradd anjali
+sudo groupadd data-entry
+sudo usermod -aG data-entry mohan
+sudo usermod -aG data-entry ramesh
+sudo usermod -aG data-entry roshani
+sudo usermod -aG data-entry anjali
+sudo mkdir /data
+sudo chown anjali:data-entry /data
+sudo chmod 770 /data
+sudo mkdir /data-bak
+sudo chown anjali:anjali /data-bak
+sudo chmod 700 /data-bak
+
+
+
+
+
+
+
+
+
+
+
+
+
